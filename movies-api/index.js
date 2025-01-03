@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 // 路由
 app.use('/api/users', usersRouter);
 app.use('/api/movies/public', moviesRouter); // 公共 movies 路由
-app.use('/api/movies', authenticate, moviesRouter); // 需要认证的 movies 路由
+app.use('/api/movies', moviesRouter); // 需要认证的 movies 路由
 
 // 错误处理
 app.use(defaultErrHandler);
