@@ -5,6 +5,11 @@ import axios from 'axios';
 import {
     getUpcomingMovies,
     getMovies,
+    getGenres,
+    getMovieReviews,
+    getMoviePopular,
+    getTrendingMovies,
+    getMovie,
 } from '../tmdb-api';
 
 const router = express.Router();
@@ -42,64 +47,69 @@ router.get('/', asyncHandler(async (req, res) => {
 
 
 // Get movie details
-router.get('/getmovie', asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
-    const movie = await movieModel.findByMovieDBId(id);
-    if (movie) {
-        res.status(200).json(movie);
-    } else {
-        res.status(404).json({ message: 'The movie you requested could not be found.', status_code: 404 });
+router.post("/getMovie", asyncHandler(async (req, res) => {
+    const { args } = req.body; // Extract args from request body
+    try {
+    const movie = await getMovie(args);
+    res.status(200).json(movie);
+    } catch (error) {
+    res.status(500).json({
+    message: error.message || "Failed to fetch movie.",
+    status_code: 500,
+    });
     }
-}));
+    })
+);
 
 // Get upcoming movies
-router.get('/upcoming', asyncHandler(async (req, res) => {
-    const upcomingMovies = await getUpcomingMovies();
-    res.status(200).json(upcomingMovies);
-}));
+// router.get('/upcoming', asyncHandler(async (req, res) => {
+//     const upcomingMovies = await getUpcomingMovies();
+//     res.status(200).json(upcomingMovies);
+// }));
 
 // Get movie genres from TMDB
-router.get('/genres', asyncHandler(async (req, res) => {
-    try {
-        const response = await axios.get(`${TMDB_BASE_URL}/genre/movie/list`, {
-            params: {
-                api_key: TMDB_API_KEY,
-                language: 'en-US' // Adjust language as needed
-            },
-        });
+// router.get('/genres', asyncHandler(async (req, res) => {
+//     try {
+//         const response = await axios.get(`${TMDB_BASE_URL}/genre/movie/list`, {
+//             params: {
+//                 api_key: TMDB_API_KEY,
+//                 language: 'en-US' // Adjust language as needed
+//             },
+//         });
 
-        const genres = response.data.genres;
-        res.status(200).json({
-            code: 200,
-            msg: 'Genres fetched successfully',
-            genres,
-        });
-    } catch (error) {
-        console.error('Error fetching genres from TMDB:', error.message);
-        res.status(500).json({
-            code: 500,
-            msg: 'Failed to fetch genres from TMDB',
-            error: error.message,
-        });
-    }
-}));
+//         const genres = response.data.genres;
+//         res.status(200).json({
+//             code: 200,
+//             msg: 'Genres fetched successfully',
+//             genres,
+//         });
+//     } catch (error) {
+//         console.error('Error fetching genres from TMDB:', error.message);
+//         res.status(500).json({
+//             code: 500,
+//             msg: 'Failed to fetch genres from TMDB',
+//             error: error.message,
+//         });
+//     }
+// }));
 
 router.get('/genres', asyncHandler(async (req, res) => {
-    const getGenres = await getUpcomingMovies();
-    res.status(200).json(getGenres);
+    const Genres = await getGenres();
+    res.status(200).json(Genres);
 }));
 router.get('/getMovieReviews', asyncHandler(async (req, res) => {
-    const getMovieReviews = await getUpcomingMovies();
-    res.status(200).json(getMovieReviews);
+    const MovieReviews = await getMovieReviews();
+    res.status(200).json(MovieReviews);
 }));
 router.get('/getMoviePopular', asyncHandler(async (req, res) => {
-    const getMoviePopular = await getUpcomingMovies();
-    res.status(200).json(getMoviePopular);
+    const MoviePopular = await getMoviePopular();
+    res.status(200).json(MoviePopular);
 }));
 router.get('/getTrendingMovies', asyncHandler(async (req, res) => {
-    const getTrendingMovies = await getUpcomingMovies();
-    res.status(200).json(getTrendingMovies);
+    const TrendingMovies = await getTrendingMovies();
+    res.status(200).json(TrendingMovies);
 }));
+
 router.post('/getMovieImages', async (req, res) => {
     try {
         const { username, password } = req.body;
