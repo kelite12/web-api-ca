@@ -10,6 +10,8 @@ import {
     getMoviePopular,
     getTrendingMovies,
     getMovie,
+    getMovieRecommendations,
+    getMovieImages,
 } from '../tmdb-api';
 
 const router = express.Router();
@@ -97,10 +99,6 @@ router.get('/genres', asyncHandler(async (req, res) => {
     const Genres = await getGenres();
     res.status(200).json(Genres);
 }));
-router.get('/getMovieReviews', asyncHandler(async (req, res) => {
-    const MovieReviews = await getMovieReviews();
-    res.status(200).json(MovieReviews);
-}));
 router.get('/getMoviePopular', asyncHandler(async (req, res) => {
     const MoviePopular = await getMoviePopular();
     res.status(200).json(MoviePopular);
@@ -110,41 +108,46 @@ router.get('/getTrendingMovies', asyncHandler(async (req, res) => {
     res.status(200).json(TrendingMovies);
 }));
 
-router.post('/getMovieImages', async (req, res) => {
+router.post("/getMovieImages", asyncHandler(async (req, res) => {
+    const { args } = req.body; // Extract args from request body
     try {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({ success: false, msg: 'Username and password are required.' });
-        }
-
-        if (req.query.action === 'register') {
-            await registerUser(req, res);
-        } else {
-            await authenticateUser(req, res);
-        }
+    const movie = await getMovieImages(args);
+    res.status(200).json(movie);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, msg: 'Internal server error.' });
+    res.status(500).json({
+    message: error.message || "Failed to fetch movie.",
+    status_code: 500,
+    });
     }
-});
-router.post('/getMovieRecommendations', async (req, res) => {
+    })
+);
+
+router.post("/getMovieRecommendations", asyncHandler(async (req, res) => {
+    const { args } = req.body; // Extract args from request body
     try {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({ success: false, msg: 'Username and password are required.' });
-        }
-
-        if (req.query.action === 'register') {
-            await registerUser(req, res);
-        } else {
-            await authenticateUser(req, res);
-        }
+    const movie = await getMovieRecommendations(args);
+    res.status(200).json(movie);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, msg: 'Internal server error.' });
+    res.status(500).json({
+    message: error.message || "Failed to fetch movie.",
+    status_code: 500,
+    });
     }
-});
+    })
+);
+
+router.post("/getMovieReviews", asyncHandler(async (req, res) => {
+    const { args } = req.body; // Extract args from request body
+    try {
+    const movie = await getMovieReviews(args);
+    res.status(200).json(movie);
+    } catch (error) {
+    res.status(500).json({
+    message: error.message || "Failed to fetch movie.",
+    status_code: 500,
+    });
+    }
+    })
+);
 
 export default router;
